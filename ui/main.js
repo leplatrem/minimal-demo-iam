@@ -43,10 +43,12 @@ function handleAuthentication(webAuth) {
 
     displayButtons()
 
-    Promise.all([
-      fetchUserInfo(webAuth),
-      callAPI()
-    ]);
+    if (isAuthenticated()) {
+      Promise.all([
+        fetchUserInfo(webAuth),
+        callAPI()
+      ]);
+    }
   });
 }
 
