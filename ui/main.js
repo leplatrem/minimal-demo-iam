@@ -3,7 +3,7 @@ const SERVER_URL = 'http://localhost:8000'
 const AUTH0_CLIENT_ID = 'WYRYpJyS5DnDyxLTRVGCQGCWGo2KNQLN';
 const AUTH0_DOMAIN = 'minimal-demo-iam.auth0.com';
 const AUTH0_CALLBACK_URL = window.location.href;
-
+const API_AUDIENCE = 'http://minimal-demo-iam.localhost:8000'
 
 document.addEventListener('DOMContentLoaded', main);
 
@@ -15,7 +15,7 @@ function main() {
     domain: AUTH0_DOMAIN,
     clientID: AUTH0_CLIENT_ID,
     redirectUri: AUTH0_CALLBACK_URL,
-    audience: 'http://minimal-demo-iam.localhost:8000', // 'https://' + AUTH0_DOMAIN + '/userinfo',
+    audience: API_AUDIENCE,
     responseType: 'token id_token',
     scope: 'openid profile'
   });

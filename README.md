@@ -7,7 +7,7 @@
 
     cd server/
     pipenv install
-    AUTH0_DOMAIN="minimal-demo-iam.auth0.com" API_ID="http://minimal-demo-iam.localhost:8000" pipenv run python server.py
+    API_AUDIENCE="http://minimal-demo-iam.localhost:8000" pipenv run python server.py
 
 ## UI
 
