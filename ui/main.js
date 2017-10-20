@@ -1,9 +1,11 @@
-const SERVER_URL = 'http://localhost:8000'
+const SERVICE_URL = 'http://iam.local:8000'
 
-const AUTH0_CLIENT_ID = 'WYRYpJyS5DnDyxLTRVGCQGCWGo2KNQLN';
-const AUTH0_DOMAIN = 'minimal-demo-iam.auth0.com';
+const AUTH0_CLIENT_ID = 'SLocf7Sa1ibd5GNJMMqO539g7cKvWBOI';
+const AUTH0_DOMAIN = 'auth.mozilla.auth0.com';
 const AUTH0_CALLBACK_URL = window.location.href;
-const API_AUDIENCE = 'http://minimal-demo-iam.localhost:8000'
+const API_AUDIENCE = SERVICE_URL;
+const SCOPES = 'openid profile';
+
 
 document.addEventListener('DOMContentLoaded', main);
 
@@ -17,7 +19,7 @@ function main() {
     redirectUri: AUTH0_CALLBACK_URL,
     audience: API_AUDIENCE,
     responseType: 'token id_token',
-    scope: 'openid profile'
+    scope: SCOPES
   });
 
   const loginBtn = document.getElementById('login');
@@ -107,7 +109,7 @@ async function callAPI() {
   const headers = {
     "Authorization": `${auth.tokenType} ${auth.accessToken}`
   };
-  const resp = await fetch(`${SERVER_URL}/`, {headers});
+  const resp = await fetch(`${SERVICE_URL}/`, {headers});
   const data = await resp.json();
 
   const viewDiv = document.getElementById('api-result');
