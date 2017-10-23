@@ -4,7 +4,7 @@ const AUTH0_CLIENT_ID = 'SLocf7Sa1ibd5GNJMMqO539g7cKvWBOI';
 const AUTH0_DOMAIN = 'auth.mozilla.auth0.com';
 const AUTH0_CALLBACK_URL = window.location.href;
 const API_AUDIENCE = SERVICE_URL;
-const SCOPES = 'openid profile';
+const SCOPES = 'openid groups email';
 
 
 document.addEventListener('DOMContentLoaded', main);
@@ -34,18 +34,23 @@ function handleAuthentication(webAuth) {
   webAuth.parseHash((err, authResult) => {
     if (authResult && authResult.accessToken && authResult.idToken) {
       window.location.hash = '';
-      console.log("AuthResult", authResult);
       setSession(authResult);
     } else if (err) {
       console.error(err);
       alert(
         'Error: ' + err.error + '. Check the console for further details.'
       );
+    } else {
+      authResult = JSON.parse(sessionStorage.getItem('session'));
     }
 
     displayButtons()
 
     if (isAuthenticated()) {
+      console.log("AuthResult", authResult);
+      const tokenPayloadDiv = document.getElementById('token-payload');
+      tokenPayloadDiv.innerText = JSON.stringify(authResult.idTokenPayload, null, 2);
+
       Promise.all([
         fetchUserInfo(webAuth),
         callAPI()
@@ -107,11 +112,11 @@ async function fetchUserInfo(webAuth) {
 async function callAPI() {
   const auth = JSON.parse(localStorage.getItem('session'));
   const headers = {
-    "Authorization": `${auth.tokenType} ${auth.accessToken}`
+    "Authorization": `${auth.tokenType} ${auth.idToken}`
   };
   const resp = await fetch(`${SERVICE_URL}/`, {headers});
   const data = await resp.json();
 
-  const viewDiv = document.getElementById('api-result');
-  viewDiv.innerHTML = JSON.stringify(data, null, '  ');
+  const apiResultDiv = document.getElementById('api-result');
+  apiResultDiv.innerText = JSON.stringify(data, null, 2);
 }
