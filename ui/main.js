@@ -76,26 +76,26 @@ function setSession(authResult) {
   const expiresAt = JSON.stringify(
     authResult.expiresIn * 1000 + new Date().getTime()
   );
-  localStorage.setItem('session', JSON.stringify(authResult));
-  localStorage.setItem('expires_at', expiresAt);
+  sessionStorage.setItem('session', JSON.stringify(authResult));
+  sessionStorage.setItem('expires_at', expiresAt);
 }
 
 function isAuthenticated() {
   // Check whether the current time is past the
   // access token's expiry time
-  const expiresAt = JSON.parse(localStorage.getItem('expires_at'));
+  const expiresAt = JSON.parse(sessionStorage.getItem('expires_at'));
   return new Date().getTime() < expiresAt;
 }
 
 function logout() {
-  // Remove tokens and expiry time from localStorage
-  localStorage.removeItem('session');
-  localStorage.removeItem('expires_at');
+  // Remove tokens and expiry time from sessionStorage
+  sessionStorage.removeItem('session');
+  sessionStorage.removeItem('expires_at');
   displayButtons();
 }
 
 async function fetchUserInfo(webAuth) {
-  const auth = JSON.parse(localStorage.getItem('session'));
+  const auth = JSON.parse(sessionStorage.getItem('session'));
   webAuth.client.userInfo(auth.accessToken, (err, profile) => {
     if (err) {
       console.error(err);
@@ -110,7 +110,7 @@ async function fetchUserInfo(webAuth) {
 }
 
 async function callAPI() {
-  const auth = JSON.parse(localStorage.getItem('session'));
+  const auth = JSON.parse(sessionStorage.getItem('session'));
   const headers = {
     "Authorization": `${auth.tokenType} ${auth.idToken}`
   };
