@@ -1,0 +1,3 @@
+server/records/
+*.pyc
+__pycache__/
