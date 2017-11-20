@@ -1,9 +1,11 @@
-const SERVER_URL = 'http://localhost:8000'
+const SERVICE_URL = 'http://iam.local:8000'
 
-const AUTH0_CLIENT_ID = 'WYRYpJyS5DnDyxLTRVGCQGCWGo2KNQLN';
-const AUTH0_DOMAIN = 'minimal-demo-iam.auth0.com';
+const AUTH0_CLIENT_ID = 'SLocf7Sa1ibd5GNJMMqO539g7cKvWBOI';
+const AUTH0_DOMAIN = 'auth.mozilla.auth0.com';
 const AUTH0_CALLBACK_URL = window.location.href;
-const API_AUDIENCE = 'http://minimal-demo-iam.localhost:8000'
+const API_AUDIENCE = SERVICE_URL;
+const SCOPES = 'openid groups email';
+
 
 document.addEventListener('DOMContentLoaded', main);
 
@@ -17,7 +19,7 @@ function main() {
     redirectUri: AUTH0_CALLBACK_URL,
     audience: API_AUDIENCE,
     responseType: 'token id_token',
-    scope: 'openid profile'
+    scope: SCOPES
   });
 
   const loginBtn = document.getElementById('login');
@@ -32,18 +34,23 @@ function handleAuthentication(webAuth) {
   webAuth.parseHash((err, authResult) => {
     if (authResult && authResult.accessToken && authResult.idToken) {
       window.location.hash = '';
-      console.log("AuthResult", authResult);
       setSession(authResult);
     } else if (err) {
       console.error(err);
       alert(
         'Error: ' + err.error + '. Check the console for further details.'
       );
+    } else {
+      authResult = JSON.parse(sessionStorage.getItem('session'));
     }
 
     displayButtons()
 
     if (isAuthenticated()) {
+      console.log("AuthResult", authResult);
+      const tokenPayloadDiv = document.getElementById('token-payload');
+      tokenPayloadDiv.innerText = JSON.stringify(authResult.idTokenPayload, null, 2);
+
       Promise.all([
         fetchUserInfo(webAuth),
         callAPI()
@@ -69,26 +76,26 @@ function setSession(authResult) {
   const expiresAt = JSON.stringify(
     authResult.expiresIn * 1000 + new Date().getTime()
   );
-  localStorage.setItem('session', JSON.stringify(authResult));
-  localStorage.setItem('expires_at', expiresAt);
+  sessionStorage.setItem('session', JSON.stringify(authResult));
+  sessionStorage.setItem('expires_at', expiresAt);
 }
 
 function isAuthenticated() {
   // Check whether the current time is past the
   // access token's expiry time
-  const expiresAt = JSON.parse(localStorage.getItem('expires_at'));
+  const expiresAt = JSON.parse(sessionStorage.getItem('expires_at'));
   return new Date().getTime() < expiresAt;
 }
 
 function logout() {
-  // Remove tokens and expiry time from localStorage
-  localStorage.removeItem('session');
-  localStorage.removeItem('expires_at');
+  // Remove tokens and expiry time from sessionStorage
+  sessionStorage.removeItem('session');
+  sessionStorage.removeItem('expires_at');
   displayButtons();
 }
 
 async function fetchUserInfo(webAuth) {
-  const auth = JSON.parse(localStorage.getItem('session'));
+  const auth = JSON.parse(sessionStorage.getItem('session'));
   webAuth.client.userInfo(auth.accessToken, (err, profile) => {
     if (err) {
       console.error(err);
@@ -103,13 +110,13 @@ async function fetchUserInfo(webAuth) {
 }
 
 async function callAPI() {
-  const auth = JSON.parse(localStorage.getItem('session'));
+  const auth = JSON.parse(sessionStorage.getItem('session'));
   const headers = {
-    "Authorization": `${auth.tokenType} ${auth.accessToken}`
+    "Authorization": `${auth.tokenType} ${auth.idToken}`
   };
-  const resp = await fetch(`${SERVER_URL}/`, {headers});
+  const resp = await fetch(`${SERVICE_URL}/`, {headers});
   const data = await resp.json();
 
-  const viewDiv = document.getElementById('api-result');
-  viewDiv.innerHTML = JSON.stringify(data, null, '  ');
+  const apiResultDiv = document.getElementById('api-result');
+  apiResultDiv.innerText = JSON.stringify(data, null, 2);
 }

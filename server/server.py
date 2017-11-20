@@ -43,7 +43,7 @@ def authorized(resource, action):
             }).encode("utf-8")
             headers = {
                 "Authorization": request.headers.get("Authorization", None),
-                "Auth0-Audience": API_AUDIENCE,
+                "Origin": API_AUDIENCE,
             }
             r = urllib.request.Request(iam_url, data=body, headers=headers)
             try:
